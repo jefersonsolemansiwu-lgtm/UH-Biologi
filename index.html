@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ujian Biologi X Bakteri Virus</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: lembar ujian satu kolom soal + panel samping (kamera, navigasi nomor). Di ponsel panel turun ke bawah. */
+:root{
+  --bg:#f3f6f7; --surface:#ffffff; --ink:#13242b; --muted:#5a6d75; --line:#d5e0e4;
+  --accent:#0b7a85; --accent-ink:#ffffff; --accent-soft:#dff1f3;
+  --danger:#b3261e; --danger-soft:#fbe7e5; --warn:#8a5a00; --warn-soft:#fff1d0; --ok:#1d7a46;
+  --font:'Public Sans',system-ui,-apple-system,'Segoe UI',sans-serif; --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d171b; --surface:#152329; --ink:#e6f0f2; --muted:#98adb4; --line:#27393f;
+  --accent:#4fc3cd; --accent-ink:#06262a; --accent-soft:#12383d;
+  --danger:#ff8a80; --danger-soft:#3a1b19; --warn:#f0c46a; --warn-soft:#3a2d0e; --ok:#6fd49b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d171b; --surface:#152329; --ink:#e6f0f2; --muted:#98adb4; --line:#27393f;
+  --accent:#4fc3cd; --accent-ink:#06262a; --accent-soft:#12383d;
+  --danger:#ff8a80; --danger-soft:#3a1b19; --warn:#f0c46a; --warn-soft:#3a2d0e; --ok:#6fd49b; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--font);padding-block:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));-webkit-user-select:none;user-select:none}
+textarea,input{-webkit-user-select:text;user-select:text}
+.wrap{max-width:1080px;margin:0 auto;padding-block:20px 48px}
+h1,h2,h3{margin:0;line-height:1.25;text-wrap:balance}
+h1{font-size:26px;font-weight:700;letter-spacing:-.01em}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;border-radius:8px;font-weight:600}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{background:var(--danger);color:#fff;border-color:var(--danger)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+/* intro */
+.intro{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px}
+@media (max-width:820px){.intro{grid-template-columns:minmax(0,1fr)}}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 18px}
+.chip{font-size:12.5px;padding:3px 10px;border:1px solid var(--line);border-radius:99px;color:var(--muted);background:var(--surface)}
+label{display:block;font-weight:600;font-size:13.5px;margin-bottom:4px}
+.field{margin-bottom:14px}
+input[type=text],textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+textarea{min-height:170px;resize:vertical}
+.rules{margin:0;padding-left:20px;display:grid;gap:6px}
+.rules li::marker{color:var(--danger)}
+.note{padding:10px 12px;border-radius:8px;font-size:13.5px;background:var(--warn-soft);color:var(--warn)}
+.note.bad{background:var(--danger-soft);color:var(--danger)}
+.note.good{background:var(--accent-soft);color:var(--ink)}
+.cam{width:100%;aspect-ratio:4/3;background:#0a1114;border-radius:8px;overflow:hidden;display:grid;place-items:center;color:#9fb4ba;font-size:13px;text-align:center;padding:8px;position:relative}
+.cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+/* exam */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;border-bottom:1px solid var(--line);margin-bottom:18px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.top .row{justify-content:space-between;flex-wrap:nowrap}
+.timer{font:600 22px var(--mono);font-variant-numeric:tabular-nums}
+.timer.low{color:var(--danger)}
+.prog{font-size:13px;color:var(--muted)}
+.bar{height:4px;background:var(--line);border-radius:4px;margin-top:10px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .2s}
+.qhead{display:flex;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.qtext{font-size:17px;line-height:1.6;margin:0 0 16px}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;padding:12px 14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px}
+.opt:hover{border-color:var(--accent)}
+.opt .k{flex:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--muted);display:grid;place-items:center;font-weight:700;font-size:13px}
+.opts.multi .opt .k{border-radius:6px}
+.opt[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft)}
+.opt[aria-pressed=true] .k{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.nav{display:flex;justify-content:space-between;gap:12px;margin-top:20px}
+.side{display:grid;gap:16px}
+.cam.small{aspect-ratio:4/3}
+.status{display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;color:var(--muted)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--muted);flex:none}
+.dot.on{background:var(--ok)} .dot.off{background:var(--danger)}
+.map{display:grid;grid-template-columns:repeat(9,1fr);gap:6px}
+@media (max-width:420px){.map{grid-template-columns:repeat(7,1fr)}}
+.map button{aspect-ratio:1;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;font-weight:600;font-size:13px;font-variant-numeric:tabular-nums;padding:0}
+.map button.done{background:var(--accent-soft);border-color:var(--accent)}
+.map button.cur{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.legend{font-size:12px;color:var(--muted);margin-top:10px}
+.modal{position:fixed;inset:0;background:rgba(6,14,17,.6);display:grid;place-items:center;padding:16px;z-index:20}
+.modal .card{max-width:420px;width:100%}
+/* done */
+.big{font-size:22px;font-weight:700}
+.code{font:12px/1.4 var(--mono);word-break:break-all;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;max-height:120px;overflow:auto;-webkit-user-select:text;user-select:text}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.scroll{overflow-x:auto}
+.mut{color:var(--muted)}
+.sec{font-size:12.5px;font-weight:600;color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div class="wrap" id="app"></div>
+
+<script>
+const SOAL = [{"n": 1, "q": "Seorang siswa mengamati preparat bakteri dengan pewarnaan Gram. Setelah tahap pencucian dengan alkohol 96%, sel bakteri tetap berwarna ungu. Ciri dinding sel yang paling tepat menjelaskan hasil tersebut adalah ...", "o": [["A", "lapisan peptidoglikan tebal dengan membran luar berlipopolisakarida"], ["B", "lapisan peptidoglikan tipis tanpa membran luar"], ["C", "lapisan peptidoglikan tebal tanpa membran luar"], ["D", "lapisan peptidoglikan tipis dengan membran luar berlipopolisakarida"], ["E", "lapisan pseudomurein tebal tanpa membran luar"]], "t": "pg"}, {"n": 2, "q": "Pernyataan yang benar mengenai fungsi reagen pada pewarnaan Gram adalah ...", "o": [["A", "iodin berfungsi sebagai pewarna utama yang meresap ke dalam peptidoglikan tipis"], ["B", "alkohol berfungsi sebagai mordan yang mengikat kristal violet pada peptidoglikan tebal"], ["C", "safranin berfungsi sebagai mordan yang memperkuat ikatan kristal violet pada dinding sel"], ["D", "kristal violet berfungsi sebagai pewarna pembanding yang mewarnai sel Gram negatif"], ["E", "alkohol berfungsi sebagai peluntur yang melarutkan kompleks warna pada sel Gram negatif"]], "t": "pg"}, {"n": 3, "q": "Perbedaan mendasar Archaebacteria dan Eubacteria yang tepat adalah ...", "o": [["A", "membran plasma Archaebacteria mengandung lipid berikatan eter bercabang, sedangkan Eubacteria berikatan ester lurus"], ["B", "membran plasma Archaebacteria mengandung lipid berikatan ester lurus, sedangkan Eubacteria berikatan eter bercabang"], ["C", "dinding sel Archaebacteria mengandung peptidoglikan, sedangkan Eubacteria mengandung pseudomurein"], ["D", "ribosom Archaebacteria berukuran 80S, sedangkan ribosom Eubacteria berukuran 70S"], ["E", "materi genetik Archaebacteria diselubungi membran inti, sedangkan Eubacteria tidak"]], "t": "pg"}, {"n": 4, "q": "Sebuah mikroorganisme ditemukan di danau garam dengan kadar garam di atas 25%. Selnya berwarna ungu kemerahan karena pigmen bakteriorodopsin. Kelompok dan contoh mikroorganisme tersebut adalah ...", "o": [["A", "termoasidofil, Halobacterium"], ["B", "halofil ekstrem, Sulfolobus"], ["C", "metanogen, Methanococcus"], ["D", "halofil ekstrem, Halobacterium"], ["E", "halofil ekstrem, Methanococcus"]], "t": "pg"}, {"n": 5, "q": "Satu sel bakteri membelah biner setiap 20 menit pada kondisi optimal. Jumlah sel setelah 3 jam adalah ...", "o": [["A", "256"], ["B", "512"], ["C", "1.024"], ["D", "2.048"], ["E", "4.096"]], "t": "pg"}, {"n": 6, "q": "Bakteri nonpatogen ditumbuhkan bersama ekstrak DNA bakteri patogen yang sudah mati. Setelah beberapa waktu, sebagian bakteri nonpatogen berubah menjadi patogen. Peristiwa dan mekanismenya adalah ...", "o": [["A", "konjugasi melalui pili seks"], ["B", "transduksi melalui bakteriofag"], ["C", "pembelahan biner melalui pembentukan septum"], ["D", "transformasi melalui penyerapan DNA bebas"], ["E", "konjugasi melalui penyerapan DNA bebas"]], "t": "pg"}, {"n": 7, "q": "Perbedaan transduksi dan konjugasi yang benar adalah ...", "o": [["A", "transduksi memerlukan bakteriofag sebagai perantara, sedangkan konjugasi memerlukan kontak langsung melalui pili"], ["B", "transduksi memerlukan kontak langsung melalui pili, sedangkan konjugasi memerlukan bakteriofag sebagai perantara"], ["C", "transduksi memindahkan plasmid melalui pili, sedangkan konjugasi memindahkan DNA bebas dari lingkungan"], ["D", "transduksi memindahkan DNA bebas dari lingkungan, sedangkan konjugasi memerlukan bakteriofag sebagai perantara"], ["E", "transduksi dan konjugasi sama-sama memerlukan kontak langsung melalui pili, sedangkan transformasi memerlukan bakteriofag"]], "t": "pg"}, {"n": 8, "q": "Gen resistensi antibiotik dapat menyebar cepat antarbakteri di usus, bahkan antarspesies, melalui kontak langsung sel. Mekanisme dan materi genetik yang dipindahkan adalah ...", "o": [["A", "transformasi, penyerapan fragmen DNA bebas"], ["B", "transduksi, pemindahan DNA melalui bakteriofag"], ["C", "konjugasi, pemindahan plasmid melalui pili seks"], ["D", "konjugasi, pemindahan kromosom melalui bakteriofag"], ["E", "transformasi, pemindahan plasmid melalui pili seks"]], "t": "pg"}, {"n": 9, "q": "Pasangan nama bakteri, bentuk sel, dan penyakit yang tepat adalah ...", "o": [["A", "Vibrio cholerae, basil lurus, kolera"], ["B", "Neisseria gonorrhoeae, streptokokus, gonore"], ["C", "Salmonella typhi, kokus, tifus"], ["D", "Staphylococcus aureus, diplokokus, bisul"], ["E", "Treponema pallidum, spiroket, sifilis"]], "t": "pg"}, {"n": 10, "q": "Pasangan bakteri dan peranannya yang benar adalah ...", "o": [["A", "Acetobacter xylinum, pembuatan yoghurt dan keju"], ["B", "Acetobacter xylinum, pembuatan nata de coco"], ["C", "Lactobacillus, pembuatan nata de coco"], ["D", "Rhizobium, pembuatan antibiotik"], ["E", "Streptomyces, sintesis vitamin K"]], "t": "pg"}, {"n": 11, "q": "Seorang petani tertusuk paku berkarat, beberapa hari kemudian mengalami kejang otot rahang. Bakteri penyebabnya berspora dan hidup tanpa oksigen. Bakteri dan penyakitnya adalah ...", "o": [["A", "Clostridium tetani, tetanus"], ["B", "Clostridium botulinum, tetanus"], ["C", "Clostridium tetani, botulisme"], ["D", "Bacillus anthracis, tetanus"], ["E", "Corynebacterium diphtheriae, tetanus"]], "t": "pg"}, {"n": 12, "q": "Virus dikatakan berada pada batas antara makhluk hidup dan benda mati karena ...", "o": [["A", "memiliki DNA dan RNA, tetapi tidak dapat bereproduksi"], ["B", "memiliki membran sel, tetapi tidak memiliki ribosom"], ["C", "berbentuk kristal di luar inang, tetapi bereproduksi di dalam sel inang"], ["D", "memiliki sel prokariotik, tetapi tidak melakukan metabolisme"], ["E", "dapat tumbuh pada medium buatan, tetapi tidak memiliki asam nukleat"]], "t": "pg"}, {"n": 13, "q": "Iwanowski menyaring getah daun tembakau sakit dengan saringan Chamberland, dan filtrat tetap menularkan penyakit. Kesimpulan dan tindak lanjutnya yang tepat adalah ...", "o": [["A", "agen penyebab lebih kecil dari bakteri; Stanley menyebutnya contagium vivum fluidum"], ["B", "agen penyebab berupa bakteri sangat kecil; Beijerinck menyebutnya contagium vivum fluidum"], ["C", "agen penyebab lebih kecil dari bakteri; Stanley menyebutnya virus mosaik"], ["D", "agen penyebab lebih kecil dari bakteri; Beijerinck menyebutnya contagium vivum fluidum"], ["E", "agen penyebab berupa racun kimia; Beijerinck menyebutnya contagium vivum fluidum"]], "t": "pg"}, {"n": 14, "q": "Stanley (1935) berhasil mengkristalkan virus mosaik tembakau (TMV) dan kristal tersebut tetap menular. Kesimpulan yang tepat adalah ...", "o": [["A", "virus adalah sel prokariotik yang dapat dikristalkan"], ["B", "virus dapat dikristalkan di luar inang tetapi tetap infektif"], ["C", "virus yang dikristalkan tidak dapat menginfeksi kembali"], ["D", "virus tidak memiliki protein sehingga hanya tersusun atas asam nukleat"], ["E", "virus tidak dapat dikristalkan namun tetap infektif"]], "t": "pg"}, {"n": 15, "q": "Pasangan bagian bakteriofag dan fungsinya yang tepat adalah ...", "o": [["A", "kepala, menempel pada reseptor dinding sel bakteri"], ["B", "selubung ekor, menyimpan asam nukleat virus"], ["C", "lempeng dasar, menyimpan asam nukleat virus"], ["D", "kapsomer, menempel pada reseptor dinding sel bakteri"], ["E", "serabut ekor, menempel pada reseptor dinding sel bakteri"]], "t": "pg"}, {"n": 16, "q": "Pasangan virus dan bentuknya yang tepat adalah ...", "o": [["A", "adenovirus, kompleks dengan ekor"], ["B", "virus mosaik tembakau, batang heliks"], ["C", "bakteriofag T4, ikosahedral tanpa ekor"], ["D", "poliovirus, batang heliks"], ["E", "HIV, batang heliks"]], "t": "pg"}, {"n": 17, "q": "Pada daur litik bakteriofag, tahap dan enzim yang dikeluarkan ujung ekor untuk melubangi dinding sel bakteri adalah ...", "o": [["A", "adsorpsi, lisozim"], ["B", "penetrasi, transkriptase balik"], ["C", "perakitan, lisozim"], ["D", "penetrasi, lisozim"], ["E", "sintesis, lisozim"]], "t": "pg"}, {"n": 18, "q": "Pernyataan yang benar tentang profag adalah ...", "o": [["A", "DNA virus yang terintegrasi pada kromosom bakteri dan ikut bereplikasi saat bakteri membelah"], ["B", "DNA virus yang bebas di sitoplasma bakteri dan bereplikasi terpisah dari kromosom"], ["C", "RNA virus yang terintegrasi pada kromosom bakteri dan ikut bereplikasi saat bakteri membelah"], ["D", "kapsid virus yang menempel pada dinding sel bakteri dan ikut terbelah saat bakteri membelah"], ["E", "DNA virus yang terintegrasi pada kromosom bakteri dan langsung memicu lisis sel"]], "t": "pg"}, {"n": 19, "q": "Perbandingan daur litik dan daur lisogenik yang benar adalah ...", "o": [["A", "pada daur litik DNA virus berintegrasi dengan kromosom inang, pada daur lisogenik sel inang segera lisis"], ["B", "pada daur litik sel inang lisis setelah profag aktif, pada daur lisogenik virus baru segera dirakit"], ["C", "pada daur litik sel inang tidak lisis, pada daur lisogenik sel inang segera lisis"], ["D", "pada daur litik virus baru dirakit setelah integrasi, pada daur lisogenik sel inang segera lisis"], ["E", "pada daur litik virus baru segera dirakit hingga sel lisis, pada daur lisogenik DNA virus berintegrasi tanpa lisis segera"]], "t": "pg"}, {"n": 20, "q": "Alkohol dan sabun paling mudah menginaktivasi virus berikut ...", "o": [["A", "poliovirus"], ["B", "norovirus"], ["C", "virus influenza"], ["D", "adenovirus"], ["E", "virus hepatitis A"]], "t": "pg"}, {"n": 21, "q": "Kelompok yang seluruhnya merupakan virus RNA adalah ...", "o": [["A", "HIV, herpes simpleks, campak"], ["B", "rabies, hepatitis B, dengue"], ["C", "rabies, polio, influenza"], ["D", "variola, rabies, polio"], ["E", "dengue, adenovirus, HIV"]], "t": "pg"}, {"n": 22, "q": "Pada HIV, enzim transkriptase balik berperan dalam ...", "o": [["A", "mensintesis RNA dari cetakan DNA inang untuk membentuk kapsid"], ["B", "mensintesis protein kapsid dari cetakan RNA virus"], ["C", "memotong dinding sel inang agar RNA virus dapat masuk"], ["D", "mensintesis DNA dari cetakan DNA virus untuk diintegrasikan ke kromosom inang"], ["E", "mensintesis DNA dari cetakan RNA virus untuk diintegrasikan ke kromosom inang"]], "t": "pg"}, {"n": 23, "q": "Vaksin melindungi tubuh karena ...", "o": [["A", "mengandung antibodi spesifik sehingga menetralkan virus secara langsung"], ["B", "mengandung antigen virus yang dilemahkan sehingga merangsang pembentukan antibodi dan sel memori"], ["C", "mengandung antigen virus yang dilemahkan sehingga menetralkan virus secara langsung"], ["D", "mengandung antibodi spesifik sehingga merangsang pembentukan sel memori"], ["E", "mengandung sel memori sehingga merangsang pembentukan antibodi"]], "t": "pg"}, {"n": 24, "q": "Pasangan virus dan tanaman yang diserangnya yang tepat adalah ...", "o": [["A", "virus tungro, padi"], ["B", "virus mosaik tembakau, padi"], ["C", "virus tungro, tembakau"], ["D", "virus mosaik tebu, padi"], ["E", "virus kerdil rumput, tembakau"]], "t": "pg"}, {"n": 25, "q": "Perhatikan peristiwa daur litik berikut: (1) kapsid dibentuk dan dirakit, (2) DNA virus masuk sedangkan kapsid tertinggal, (3) virus menempel pada reseptor, (4) sel bakteri pecah, (5) DNA bakteri dihancurkan dan DNA virus direplikasi. Urutan yang benar adalah ...", "o": [["A", "3-5-2-1-4"], ["B", "2-3-5-1-4"], ["C", "3-2-1-5-4"], ["D", "3-2-5-1-4"], ["E", "3-2-5-4-1"]], "t": "pg"}, {"n": 26, "q": "Ciri-ciri virus yang benar adalah ...", "o": [["A", "tidak memiliki struktur sel"], ["B", "hanya memiliki satu jenis asam nukleat"], ["C", "bersifat parasit obligat intraseluler"], ["D", "memiliki DNA dan RNA sekaligus dalam satu kapsid"], ["E", "memiliki ribosom sendiri untuk sintesis protein"]], "t": "pgk"}, {"n": 27, "q": "Pernyataan yang benar tentang Archaebacteria adalah ...", "o": [["A", "dinding selnya mengandung peptidoglikan"], ["B", "seluruh anggotanya bersifat patogen bagi manusia"], ["C", "metanogen menghasilkan gas metana pada kondisi anaerob"], ["D", "halofil ekstrem hidup pada lingkungan berkadar garam sangat tinggi"], ["E", "termoasidofil hidup pada lingkungan bersuhu tinggi dan pH rendah"]], "t": "pgk"}, {"n": 28, "q": "Pasangan bakteri dan peranannya yang menguntungkan adalah ...", "o": [["A", "Lactobacillus pada pembuatan yoghurt"], ["B", "Acetobacter xylinum pada pembuatan keju"], ["C", "Escherichia coli sebagai penghasil antibiotik"], ["D", "Streptomyces sebagai penghasil antibiotik"], ["E", "Rhizobium pada fiksasi nitrogen di bintil akar"]], "t": "pgk"}, {"n": 29, "q": "Pernyataan yang benar tentang pewarnaan Gram adalah ...", "o": [["A", "Gram positif memiliki membran luar berlipopolisakarida"], ["B", "Gram positif tampak ungu pada hasil akhir pewarnaan"], ["C", "Gram negatif tampak merah muda pada hasil akhir pewarnaan"], ["D", "Gram negatif umumnya lebih tahan terhadap penisilin dibanding Gram positif"], ["E", "Gram negatif memiliki lapisan peptidoglikan yang lebih tebal"]], "t": "pgk"}, {"n": 30, "q": "Peristiwa paraseksual (rekombinasi genetik) pada bakteri adalah ...", "o": [["A", "transformasi: penyerapan DNA bebas dari lingkungan"], ["B", "transduksi: pemindahan DNA oleh bakteriofag"], ["C", "fragmentasi: pemindahan DNA melalui pili"], ["D", "pembelahan biner: pemindahan plasmid melalui kontak langsung"], ["E", "konjugasi: pemindahan plasmid melalui pili seks"]], "t": "pgk"}, {"n": 31, "q": "Pernyataan yang benar tentang daur lisogenik adalah ...", "o": [["A", "DNA virus berintegrasi menjadi profag pada kromosom bakteri"], ["B", "sel inang segera lisis setelah DNA virus masuk"], ["C", "profag ikut bereplikasi bersama DNA bakteri saat membelah"], ["D", "kapsid baru dirakit sebelum DNA virus berintegrasi"], ["E", "profag tidak dapat beralih ke daur litik"]], "t": "pgk"}, {"n": 32, "q": "Pasangan penyakit virus dan dampaknya yang benar adalah ...", "o": [["A", "hepatitis B: kerusakan sistem saraf pusat"], ["B", "HIV/AIDS: penurunan sel T CD4 dan melemahnya kekebalan"], ["C", "dengue: penurunan jumlah sel T CD4"], ["D", "rabies: peradangan dan kerusakan sistem saraf pusat"], ["E", "rabies: penurunan jumlah trombosit"]], "t": "pgk"}, {"n": 33, "q": "Virus yang tidak berselubung dan lebih tahan terhadap desinfektan adalah ...", "o": [["A", "virus influenza"], ["B", "HIV"], ["C", "poliovirus"], ["D", "virus corona (SARS-CoV-2)"], ["E", "norovirus"]], "t": "pgk"}, {"n": 34, "q": "Pernyataan yang benar tentang cara kerja vaksin adalah ...", "o": [["A", "merangsang respons imun primer terhadap antigen virus"], ["B", "menyediakan antibodi siap pakai yang langsung menetralkan virus"], ["C", "menghancurkan virus secara langsung di dalam darah"], ["D", "membentuk sel memori yang mempercepat respons pada paparan berikutnya"], ["E", "menggantikan fungsi sel T pembunuh yang rusak"]], "t": "pgk"}, {"n": 35, "q": "Pengelompokan virus patogen yang benar adalah ...", "o": [["A", "virus tumbuhan: TMV dan bakteriofag T4"], ["B", "virus hewan: rabies dan flu burung"], ["C", "virus manusia: HIV dan virus tungro"], ["D", "virus bakteri: TMV dan virus tungro"], ["E", "virus tumbuhan: TMV dan virus tungro"]], "t": "pgk"}, {"n": 36, "q": "Enzim yang dilepaskan ujung ekor bakteriofag untuk melubangi dinding sel bakteri saat penetrasi adalah ...", "o": [], "t": "isian"}, {"n": 37, "q": "Pemindahan potongan DNA dari satu bakteri ke bakteri lain dengan bakteriofag sebagai perantara disebut ...", "o": [], "t": "isian"}, {"n": 38, "q": "Kelompok Archaebacteria yang menghasilkan gas metana di rawa dan usus ruminansia adalah ...", "o": [], "t": "isian"}, {"n": 39, "q": "DNA virus yang terintegrasi pada kromosom bakteri pada daur lisogenik disebut ...", "o": [], "t": "isian"}, {"n": 40, "q": "Unit-unit protein penyusun kapsid virus disebut ...", "o": [], "t": "isian"}, {"n": 41, "q": "Bandingkan Archaebacteria dan Eubacteria dari minimal empat aspek (dinding sel, membran plasma, habitat, contoh). Berikan contoh Archaebacteria tiap kelompoknya.", "o": [], "t": "esai"}, {"n": 42, "q": "Jelaskan tahapan daur litik dan daur lisogenik pada bakteriofag. Apa yang terjadi jika sel bakteri berprofag terkena sinar UV?", "o": [], "t": "esai"}, {"n": 43, "q": "Jelaskan prosedur pewarnaan Gram dan mengapa bakteri Gram positif dan Gram negatif menghasilkan warna akhir berbeda. Jelaskan implikasinya pada pemilihan antibiotik penisilin.", "o": [], "t": "esai"}, {"n": 44, "q": "Jelaskan cara kerja vaksin. Mengapa HIV sulit dibuatkan vaksin, dan peran enzim apa yang membuatnya berbeda dari virus RNA lain?", "o": [], "t": "esai"}, {"n": 45, "q": "Sebutkan dan jelaskan tiga mekanisme reproduksi paraseksual bakteri. Bagaimana mekanisme tersebut berkontribusi pada penyebaran resistensi antibiotik?", "o": [], "t": "esai"}];
+const DURASI_MENIT = 90;
+/* Tempel URL Web App Google Apps Script (berakhiran /exec) di sini. Penilaian dilakukan di sana. */
+const ENDPOINT = "";
+const KEY = "ujian-bio-x-bv";
+const $ = (s,r=document)=>r.querySelector(s);
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const app = $("#app");
+
+const S = {
+  fase:"intro", idn:{nama:"",kelas:"",absen:""}, jawab:{}, idx:0,
+  mulai:0, kamera:false, fullscreen:false, armed:false,
+  pelanggaran:null, selesaiAt:0, stream:null, faceTimer:null, tick:null, noFace:0, multiFace:0, kodeHasil:"", dbOk:null, id:"", skor:null
+};
+
+function simpan(){ try{ localStorage.setItem(KEY, JSON.stringify({fase:S.fase,idn:S.idn,jawab:S.jawab,mulai:S.mulai,pelanggaran:S.pelanggaran,selesaiAt:S.selesaiAt,kamera:S.kamera,id:S.id,skor:S.skor})); }catch(e){} }
+function muat(){ try{ return JSON.parse(localStorage.getItem(KEY)||"null"); }catch(e){ return null; } }
+
+/* ---------- layar ---------- */
+function layarIntro(){
+  const prev=muat();
+  app.innerHTML=`
+  <div class="eyebrow">Biologi · Kelas X · Tingkat sulit</div>
+  <h1 style="margin-top:6px">Bakteri dan Virus</h1>
+  <div class="meta"><span class="chip">45 soal</span><span class="chip">25 pilihan ganda</span><span class="chip">10 PG kompleks</span><span class="chip">5 isian singkat</span><span class="chip">5 esai</span><span class="chip">${DURASI_MENIT} menit</span></div>
+  <div class="intro">
+    <div class="card">
+      <h2 style="font-size:18px;margin-bottom:14px">Data peserta</h2>
+      <div class="field"><label for="nama">Nama lengkap</label><input type="text" id="nama" autocomplete="off"></div>
+      <div class="row"><div class="field" style="flex:1;min-width:120px"><label for="kelas">Kelas</label><input type="text" id="kelas" placeholder="X-3" autocomplete="off"></div>
+      <div class="field" style="flex:1;min-width:120px"><label for="absen">Nomor absen</label><input type="text" id="absen" inputmode="numeric" autocomplete="off"></div></div>
+      <h2 style="font-size:16px;margin:8px 0 8px">Aturan ujian</h2>
+      <ul class="rules">
+        <li>Kamera harus menyala dan wajah terlihat selama ujian.</li>
+        <li>Ujian berjalan layar penuh. Keluar dari layar penuh menghentikan ujian.</li>
+        <li>Berpindah tab, membuka aplikasi lain, atau jendela kehilangan fokus menghentikan ujian.</li>
+        <li>Salin, tempel, dan tombol pintas pengembang menghentikan ujian. Klik kanan hanya diblokir (tidak menghentikan ujian).</li>
+        <li>Pelanggaran terdeteksi: ujian berhenti saat itu juga, jawaban yang sudah ada terkirim, dan ujian tidak bisa diulang dari perangkat ini.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2 style="font-size:18px;margin-bottom:12px">Cek kamera</h2>
+      <div class="cam" id="camBox"><span>Kamera belum aktif</span></div>
+      <div class="row" style="margin:12px 0"><button class="btn" id="btnCam">Aktifkan kamera</button></div>
+      <div id="camMsg"></div>
+      <button class="btn primary" id="btnMulai" style="width:100%;margin-top:14px" disabled>Mulai ujian</button>
+      <div class="mut" style="font-size:12.5px;margin-top:8px">Setelah menekan mulai, waktu langsung berjalan.</div>
+    </div>
+  </div>`;
+  if(prev && (prev.fase==="selesai"||prev.fase==="dihentikan")){ S.idn=prev.idn; S.jawab=prev.jawab||{}; S.pelanggaran=prev.pelanggaran; S.selesaiAt=prev.selesaiAt; S.mulai=prev.mulai; S.kamera=prev.kamera; S.id=prev.id||""; S.skor=prev.skor||null; S.dbOk=prev.skor?true:null; S.fase=prev.fase; return layarSelesai(true); }
+  const cek=()=>{ $("#btnMulai").disabled = !($("#nama").value.trim() && $("#kelas").value.trim() && $("#absen").value.trim() && S.camTried); };
+  ["nama","kelas","absen"].forEach(id=>$("#"+id).addEventListener("input",cek));
+  $("#btnCam").onclick=async()=>{
+    $("#btnCam").disabled=true;
+    const ok=await nyalakanKamera($("#camBox"));
+    S.camTried=true;
+    $("#camMsg").innerHTML = ok
+      ? `<div class="note good">Kamera aktif${("FaceDetector" in window)?", deteksi wajah siap.":". Deteksi wajah otomatis tidak didukung browser ini; kamera tetap harus menyala."}</div>`
+      : `<div class="note bad">Kamera tidak bisa diaktifkan di sini (${esc(S.camErr||"ditolak")}). Izinkan kamera lalu coba lagi. Jika tetap gagal, ujian tetap bisa dimulai dan statusnya tercatat sebagai <b>tanpa kamera</b>.</div>`;
+    $("#btnCam").disabled=false; $("#btnCam").textContent=ok?"Kamera aktif":"Coba lagi"; cek();
+  };
+  $("#btnMulai").onclick=mulaiUjian;
+}
+
+async function nyalakanKamera(box){
+  try{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia) throw {name:"tidak didukung"};
+    if(S.stream) S.stream.getTracks().forEach(t=>t.stop());
+    S.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:640},height:{ideal:480}},audio:false});
+    S.kamera=true; S.camErr="";
+    const v=document.createElement("video"); v.muted=true; v.playsInline=true; v.autoplay=true; v.srcObject=S.stream; v.id="camVideo";
+    box.innerHTML=""; box.appendChild(v); try{await v.play();}catch(e){}
+    return true;
+  }catch(e){ S.kamera=false; S.camErr=e&&e.name||"error"; return false; }
+}
+
+async function mulaiUjian(){
+  S.idn={nama:$("#nama").value.trim(),kelas:$("#kelas").value.trim(),absen:$("#absen").value.trim()};
+  try{ await document.documentElement.requestFullscreen(); S.fullscreen=true; }catch(e){ S.fullscreen=false; }
+  S.fase="berjalan"; S.mulai=Date.now(); S.idx=0; simpan();
+  layarUjian();
+  setTimeout(()=>{ S.armed=true; },1500);
+  pasangPengawas();
+}
+
+function bagianLabel(q){ return {pg:"A · Pilihan ganda",pgk:"B · PG kompleks (pilih semua yang benar)",isian:"C · Isian singkat",esai:"D · Esai"}[q.t]; }
+function terjawab(q){ const a=S.jawab[q.n]; return Array.isArray(a)?a.length>0:!!(a&&String(a).trim()); }
+
+function layarUjian(){
+  app.innerHTML=`
+  <div class="top"><div class="row"><div><div class="eyebrow">Bakteri dan Virus</div><div class="prog" id="prog"></div></div><div class="timer" id="timer">--:--</div></div><div class="bar"><i id="barfill"></i></div></div>
+  <div class="grid2">
+    <div class="card" id="soal"></div>
+    <div class="side">
+      <div class="card"><div class="cam small" id="camBox"></div>
+        <div class="status"><span class="dot" id="camDot"></span><span id="camTxt"></span></div></div>
+      <div class="card"><div class="eyebrow" style="margin-bottom:10px">Nomor soal</div><div class="map" id="map"></div>
+        <div class="legend">Biru muda: sudah dijawab · Penuh: soal ini</div>
+        <button class="btn primary" id="kumpul" style="width:100%;margin-top:14px">Kumpulkan jawaban</button></div>
+    </div>
+  </div>`;
+  const box=$("#camBox");
+  if(S.stream){ const v=document.createElement("video"); v.muted=true; v.playsInline=true; v.autoplay=true; v.srcObject=S.stream; box.appendChild(v); v.play().catch(()=>{}); $("#camDot").className="dot on"; $("#camTxt").textContent=("FaceDetector" in window)?"Kamera aktif, wajah dipantau":"Kamera aktif"; }
+  else { box.innerHTML="<span>Tanpa kamera</span>"; $("#camDot").className="dot off"; $("#camTxt").textContent="Kamera tidak aktif"; }
+  $("#kumpul").onclick=konfirmasiKumpul;
+  gambarSoal(); jalankanTimer();
+}
+
+function gambarSoal(){
+  const q=SOAL[S.idx]; const a=S.jawab[q.n];
+  let body="";
+  if(q.t==="pg"||q.t==="pgk"){
+    body=`<div class="opts ${q.t==="pgk"?"multi":""}">`+q.o.map(([k,v])=>{
+      const on=q.t==="pg"?a===k:(a||[]).includes(k);
+      return `<button class="opt" data-k="${k}" aria-pressed="${on}"><span class="k">${k}</span><span>${esc(v)}</span></button>`;}).join("")+`</div>`;
+  } else if(q.t==="isian"){
+    body=`<label for="ans">Jawaban</label><input type="text" id="ans" autocomplete="off" value="${esc(a||"")}">`;
+  } else body=`<label for="ans">Jawaban esai</label><textarea id="ans">${esc(a||"")}</textarea>`;
+  $("#soal").innerHTML=`<div class="qhead"><div><div class="sec">${bagianLabel(q)}</div><h2 style="font-size:15px;color:var(--muted);font-weight:600">Soal ${q.n} dari 45</h2></div></div>
+   <p class="qtext">${esc(q.q)}</p>${body}
+   <div class="nav"><button class="btn" id="prev" ${S.idx===0?"disabled":""}>Sebelumnya</button><button class="btn primary" id="next" ${S.idx===44?"disabled":""}>Berikutnya</button></div>`;
+  $("#prev").onclick=()=>{S.idx--;gambarSoal();};
+  $("#next").onclick=()=>{S.idx++;gambarSoal();};
+  document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.k;
+    if(q.t==="pg") S.jawab[q.n]=k;
+    else { const s=new Set(S.jawab[q.n]||[]); s.has(k)?s.delete(k):s.add(k); S.jawab[q.n]=[...s].sort(); }
+    simpan(); gambarSoal(); gambarPeta();
+  });
+  const ans=$("#ans"); if(ans) ans.addEventListener("input",()=>{ S.jawab[q.n]=ans.value; simpan(); gambarPeta(); });
+  gambarPeta(); window.scrollTo({top:0});
+}
+function gambarPeta(){
+  $("#map").innerHTML=SOAL.map((q,i)=>`<button class="${i===S.idx?"cur":terjawab(q)?"done":""}" data-i="${i}" aria-label="Soal ${q.n}">${q.n}</button>`).join("");
+  document.querySelectorAll("#map button").forEach(b=>b.onclick=()=>{S.idx=+b.dataset.i;gambarSoal();});
+  const n=SOAL.filter(terjawab).length;
+  $("#prog").textContent=`Terjawab ${n} dari 45`; $("#barfill").style.width=(n/45*100)+"%";
+}
+
+function konfirmasiKumpul(){
+  const belum=SOAL.filter(q=>!terjawab(q)).length;
+  const m=document.createElement("div"); m.className="modal";
+  m.innerHTML=`<div class="card"><h2 style="font-size:18px;margin-bottom:8px">Kumpulkan jawaban?</h2>
+   <p class="mut" style="margin:0 0 16px">${belum?`Masih ada <b>${belum}</b> soal yang belum dijawab. `:"Semua soal sudah dijawab. "}Setelah dikumpulkan, jawaban tidak bisa diubah.</p>
+   <div class="row" style="justify-content:flex-end"><button class="btn" id="batal">Kembali</button><button class="btn primary" id="ya">Kumpulkan</button></div></div>`;
+  document.body.appendChild(m);
+  m.querySelector("#batal").onclick=()=>m.remove();
+  m.querySelector("#ya").onclick=()=>{m.remove();akhiri("selesai",null);};
+}
+
+function jalankanTimer(){
+  clearInterval(S.tick);
+  const t=()=>{
+    const sisa=S.mulai+DURASI_MENIT*60000-Date.now();
+    if(sisa<=0){ akhiri("selesai","Waktu habis"); return; }
+    const m=Math.floor(sisa/60000), s=Math.floor(sisa%60000/1000);
+    const el=$("#timer"); if(el){ el.textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0"); el.classList.toggle("low",sisa<5*60000); }
+  };
+  t(); S.tick=setInterval(t,1000);
+}
+
+/* ---------- pengawasan ---------- */
+function pelanggaran(alasan){ if(S.fase!=="berjalan"||!S.armed) return; akhiri("dihentikan",alasan); }
+const cegah=(e,alasan)=>{ if(S.fase==="berjalan"){ e.preventDefault(); pelanggaran(alasan); } };
+let toastT=null;
+function toastInfo(t){
+  let el=document.getElementById("toastInfo");
+  if(!el){ el=document.createElement("div"); el.id="toastInfo";
+    el.style.cssText="position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:8px;font-size:13.5px;z-index:9999;max-width:90vw;text-align:center;pointer-events:none";
+    document.body.appendChild(el); }
+  el.textContent=t; el.style.display="block";
+  clearTimeout(toastT); toastT=setTimeout(()=>{ el.style.display="none"; },1800);
+}
+let pasang=false;
+function pasangPengawas(){
+  if(!pasang){ pasang=true;
+    document.addEventListener("visibilitychange",()=>{ if(document.hidden) pelanggaran("Berpindah tab atau meminimalkan jendela"); });
+    window.addEventListener("blur",()=>{ setTimeout(()=>{ if(S.fase==="berjalan" && !document.hasFocus()) pelanggaran("Jendela ujian kehilangan fokus"); },900); });
+    document.addEventListener("fullscreenchange",()=>{ if(S.fullscreen && !document.fullscreenElement) pelanggaran("Keluar dari layar penuh"); });
+    document.addEventListener("copy",e=>cegah(e,"Menyalin teks"));
+    document.addEventListener("cut",e=>cegah(e,"Memotong teks"));
+    document.addEventListener("paste",e=>cegah(e,"Menempel teks"));
+    document.addEventListener("contextmenu",e=>{ if(S.fase==="berjalan"){ e.preventDefault(); toastInfo("Klik kanan dinonaktifkan selama ujian."); } });
+    document.addEventListener("dragstart",e=>cegah(e,"Menyeret konten"));
+    document.addEventListener("keydown",e=>{
+      const k=e.key.toLowerCase(), c=e.ctrlKey||e.metaKey;
+      if(e.key==="F12"||(c&&e.shiftKey&&["i","j","c"].includes(k))||(c&&["u","s","p","c","v","x"].includes(k))||e.key==="PrintScreen"||(e.altKey&&e.key==="Tab")||e.key==="Meta"||e.key==="OS") cegah(e,"Memakai tombol pintas terlarang ("+e.key+")");
+    });
+    document.addEventListener("keyup",e=>{ if(e.key==="PrintScreen") cegah(e,"Mengambil tangkapan layar"); });
+    window.addEventListener("offline",()=>{ /* hanya dicatat, tidak menghentikan */ });
+  }
+  if(S.stream){
+    S.stream.getVideoTracks().forEach(t=>t.addEventListener("ended",()=>pelanggaran("Kamera dimatikan")));
+    if("FaceDetector" in window){
+      let det; try{ det=new FaceDetector({fastMode:true,maxDetectedFaces:3}); }catch(e){ det=null; }
+      if(det){ S.faceTimer=setInterval(async()=>{
+        const v=$("#camVideo")||document.querySelector("#camBox video"); if(!v||v.readyState<2||S.fase!=="berjalan") return;
+        try{ const f=await det.detect(v);
+          S.noFace = f.length===0 ? S.noFace+1 : 0;
+          S.multiFace = f.length>1 ? S.multiFace+1 : 0;
+          if(S.noFace>=6) pelanggaran("Wajah tidak terlihat di kamera");
+          if(S.multiFace>=3) pelanggaran("Terdeteksi lebih dari satu wajah");
+        }catch(e){}
+      },1000); }
+    }
+  }
+}
+
+/* ---------- selesai ---------- */
+async function akhiri(fase,alasan){
+  if(S.fase!=="berjalan") return;
+  S.fase=fase; S.pelanggaran=alasan; S.selesaiAt=Date.now(); if(!S.id) S.id=buatId();
+  clearInterval(S.tick); clearInterval(S.faceTimer);
+  if(S.stream){ S.stream.getTracks().forEach(t=>t.stop()); S.stream=null; }
+  if(document.fullscreenElement){ S.fullscreen=false; try{document.exitFullscreen();}catch(e){} }
+  document.querySelectorAll(".modal").forEach(m=>m.remove());
+  simpan(); layarSelesai(false); kirim();
+}
+function buatId(){ try{ if(crypto.randomUUID) return crypto.randomUUID(); }catch(e){} return Date.now().toString(36)+Math.random().toString(36).slice(2,10); }
+function hasil(){
+  return { id:S.id, nama:S.idn.nama,kelas:S.idn.kelas,absen:S.idn.absen, status:S.fase, alasan:S.pelanggaran||"",
+    kamera:S.kamera, mulai:S.mulai, selesai:S.selesaiAt, durasiMenit:Math.round((S.selesaiAt-S.mulai)/6000)/10, jawab:S.jawab };
+}
+function kode(h){ return btoa(unescape(encodeURIComponent(JSON.stringify(h)))); }
+async function kirim(){
+  const h=hasil(); S.kodeHasil=kode(h);
+  const el=$("#kode"); if(el) el.textContent=S.kodeHasil;
+  if(!ENDPOINT){ S.dbOk=false; tampilStatus(); return; }
+  S.dbOk=null; tampilStatus();
+  for(let i=0;i<3 && !S.skor;i++){
+    try{
+      const r=await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...h,diterima:Date.now()})});
+      const j=await r.json();
+      if(j && j.ok && j.skor){ S.skor=j.skor; S.dbOk=true; simpan(); break; }
+    }catch(e){}
+    if(i<2) await new Promise(r=>setTimeout(r,1500*(i+1)));
+  }
+  if(!S.skor) S.dbOk=false;
+  tampilStatus();
+}
+function tampilStatus(){
+  const st=$("#kirimStatus"); if(st) st.innerHTML=statusKirim();
+  const sb=$("#skorBox"); if(sb) sb.innerHTML=skorHtml();
+  const rb=$("#kirimUlang"); if(rb) rb.onclick=()=>kirim();
+}
+function statusKirim(){
+  if(S.dbOk) return `<div class="note good">Jawaban sudah tersimpan untuk guru.</div>`;
+  if(S.dbOk===false) return `<div class="note">${ENDPOINT?"Jawaban belum terkirim ke server penilaian. Periksa koneksi internet, lalu coba lagi.":"Server penilaian belum dipasang. Salin kode hasil di bawah dan kirim ke guru."}</div>${ENDPOINT?`<button class="btn" id="kirimUlang" style="margin-top:8px">Kirim ulang</button>`:""}`;
+  return `<div class="mut">Mengirim jawaban...</div>`;
+}
+function skorHtml(){
+  const k=S.skor;
+  if(!k) return S.dbOk===false ? `<div class="mut">Skor belum bisa ditampilkan karena jawaban belum terkirim.</div>` : `<div class="mut">Menghitung skor...</div>`;
+  return `<div class="eyebrow" style="margin-bottom:4px">Skor otomatis</div>
+    <div class="big" style="margin:0 0 8px">${k.otomatis} <span class="mut" style="font-size:.55em">dari ${k.max}</span></div>
+    <div class="mut" style="font-size:13.5px;line-height:1.7">Pilihan ganda: ${k.pg} dari ${k.pgMax}<br>Pilihan ganda kompleks: ${k.pgk} dari ${k.pgkMax}<br>Isian singkat: ${k.isian} dari ${k.isianMax}<br>Esai: ${k.esaiTerisi} dari ${k.esaiMax} terisi, dinilai oleh guru</div>`;
+}
+function layarSelesai(ulang){
+  const stop=S.fase==="dihentikan";
+  const h=hasil(); if(ulang) S.kodeHasil=kode(h);
+  app.innerHTML=`<div style="max-width:620px;margin:6vh auto 0" class="card">
+    <div class="eyebrow">${esc(S.idn.nama)} · ${esc(S.idn.kelas)} · absen ${esc(S.idn.absen)}</div>
+    <div class="big" style="margin:8px 0 10px;color:${stop?"var(--danger)":"var(--ink)"}">${stop?"Ujian dihentikan":"Ujian selesai"}</div>
+    ${stop?`<div class="note bad" style="margin-bottom:12px">Pelanggaran terdeteksi: <b>${esc(S.pelanggaran)}</b>. Jawaban yang sudah terisi tetap dikirim.</div>`:S.pelanggaran?`<div class="note" style="margin-bottom:12px">${esc(S.pelanggaran)}. Jawaban terkirim.</div>`:`<p class="mut">Jawaban kamu sudah dikumpulkan.</p>`}
+    <div id="skorBox" style="margin:0 0 14px;padding:14px;border:1px solid var(--line);border-radius:10px">${skorHtml()}</div>
+    <p class="mut" style="margin:0 0 12px">Terjawab ${SOAL.filter(terjawab).length} dari 45 soal.</p>
+    <div id="kirimStatus">${statusKirim()}</div>
+    <div style="margin-top:16px"><div class="eyebrow" style="margin-bottom:6px">Kode hasil (cadangan)</div><div class="code" id="kode">${esc(S.kodeHasil)}</div>
+    <button class="btn" id="salin" style="margin-top:8px">Salin kode</button></div></div>`;
+  $("#salin").onclick=async()=>{ try{ await navigator.clipboard.writeText(S.kodeHasil); $("#salin").textContent="Tersalin"; }catch(e){ const r=document.createRange(); r.selectNodeContents($("#kode")); const s=getSelection(); s.removeAllRanges(); s.addRange(r); $("#salin").textContent="Tekan salin manual"; } };
+  const rb=$("#kirimUlang"); if(rb) rb.onclick=()=>kirim();
+}
+
+layarIntro();
+window.addEventListener("hashchange",()=>location.reload());
+</script>
+</body></html>
